@@ -263,6 +263,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   rayLength: 0.2
+  attackCooldown: 0.5
 --- !u!50 &544371439
 Rigidbody2D:
   serializedVersion: 4

@@ -8,6 +8,10 @@ public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
     public float rayLength = 0.1f;
+    public float attackCooldown = 0.5f;
+    public float attackRange = 0.5f;
+    public float attackDamage = 1f;
+
     private Rigidbody2D rb;
     private Collider2D cl;
     private bool airborne;
@@ -16,6 +20,9 @@ public class PlayerController : MonoBehaviour
     private float yVel;
     private bool facingRight;
     private float jumpForce = 5f;
+    private bool attacking;
+    private bool inAttackCooldown;
+    
 
     void Start()
     {
@@ -36,6 +43,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         ApplyMovement();
+        MakeAttack();
     }
 
     void GroundCheck()
@@ -54,10 +62,9 @@ public class PlayerController : MonoBehaviour
             jumping = true;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !inAttackCooldown)
         {
-            Debug.Log("d");
-            Debug.DrawRay(transform.position, GetForward() * 3f, Color.green, 1f);
+            attacking = true;
         }
     }
 
@@ -91,7 +98,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    Vector3 GetForward() {
+    Vector3 GetForward()
+    {
         return facingRight ? transform.right : -transform.right;
+    }
+
+    void MakeAttack()
+    {
+        if (attacking)
+        {
+            attacking = false;
+            inAttackCooldown = true;
+
+            Debug.DrawRay(transform.position, GetForward() * attackRange, Color.green, 1f);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, GetForward(), attackRange);
+
+            if (hit)
+            {
+                Damageable damageable = hit.transform.GetComponent<Damageable>();
+                damageable.TakeDamage(attackDamage);
+            }
+
+            Invoke(nameof(ResetAttackCooldown), attackCooldown);
+        }
+    }
+
+    void ResetAttackCooldown()
+    {
+        inAttackCooldown = false;
     }
 }
